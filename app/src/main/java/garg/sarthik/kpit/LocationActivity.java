@@ -24,11 +24,13 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.auth.FirebaseAuthCredentialsProvider;
 
 import garg.sarthik.kpit.Constants.Database;
 import garg.sarthik.kpit.Constants.POJODetails;
 import garg.sarthik.kpit.Constants.Status;
+import garg.sarthik.kpit.POJO.Admin;
 import garg.sarthik.kpit.POJO.Location;
 import garg.sarthik.kpit.POJO.Order;
 import garg.sarthik.kpit.Statics.Functions;
@@ -93,18 +95,22 @@ public class LocationActivity extends AppCompatActivity implements TimePickerDia
         String[] args = location.getLatLng().split(" , ");
         lat = Double.parseDouble(args[0]);
         lng = Double.parseDouble(args[1]);
-        
 
-        Variables.colAdmins.document(location.getAdminId()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+
+
+        Variables.colAdmins.whereEqualTo(POJODetails.UserEmailId,location.getAdminId()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                tvLocationOwner.setText(Functions.toCapitalise((String) documentSnapshot.get(POJODetails.AdminName)));
-                Log.e(TAG, "onSuccess: " + documentSnapshot.get(POJODetails.AdminName));
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+
+                if(queryDocumentSnapshots.isEmpty())
+                    return;
+
+                String adminName = queryDocumentSnapshots.toObjects(Admin.class).get(0).getName();
+                tvLocationOwner.setText(Functions.toCapitalise(adminName));
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(LocationActivity.this, "Unable to fetch Owner name", Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "onFailure: ", e);
             }
         });
@@ -163,7 +169,7 @@ public class LocationActivity extends AppCompatActivity implements TimePickerDia
                                         enableButton(true);
                                         tvLocationAvail.setText("" + location.getAvailSlots());
 
-                                        Snackbar.make(llLocation, "Slot Booked", Snackbar.LENGTH_LONG).show();
+                                        Snackbar.make(llLocation, "Slots Booked", Snackbar.LENGTH_LONG).show();
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override

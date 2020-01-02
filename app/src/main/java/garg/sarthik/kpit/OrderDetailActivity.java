@@ -15,10 +15,12 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import garg.sarthik.kpit.Constants.Database;
 import garg.sarthik.kpit.Constants.POJODetails;
 import garg.sarthik.kpit.Constants.Status;
+import garg.sarthik.kpit.POJO.Admin;
 import garg.sarthik.kpit.POJO.Order;
 import garg.sarthik.kpit.Statics.Functions;
 import garg.sarthik.kpit.Statics.Variables;
@@ -66,10 +68,15 @@ public class OrderDetailActivity extends AppCompatActivity {
         tvOrderPenalty.setText("₹" + order.getPenalty());
         tvOrderLatLng.setText(order.getLocation().getLatLng());
 
-        Variables.colAdmins.document(order.getLocation().getAdminId()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        Variables.colAdmins.whereEqualTo(POJODetails.UserEmailId,order.getLocation().getAdminId()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                tvOrderOwner.setText(Functions.toCapitalise((String) documentSnapshot.get(POJODetails.AdminName)));
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+
+                if(queryDocumentSnapshots.isEmpty())
+                    return;
+
+                String adminName = queryDocumentSnapshots.toObjects(Admin.class).get(0).getName();
+                tvOrderOwner.setText(Functions.toCapitalise(adminName));
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

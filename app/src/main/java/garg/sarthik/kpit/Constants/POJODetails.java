@@ -4,6 +4,7 @@ public class POJODetails {
 
     public static final String AdminName = "name";
     public static final String UserMobileNo = "mobileNo";
+    public static final String UserEmailId = "emailId";
     public static final String UserTotalBookings = "totalBookings";
     public static final String AdminLocations = "totalOwnedLocations";
     public static final String AvailSlots = "availSlots";
